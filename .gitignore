@@ -1,0 +1,4 @@
+.env
+venv
+dump.rdb
+__pycache__

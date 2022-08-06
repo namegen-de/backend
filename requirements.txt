@@ -1,0 +1,11 @@
+flask
+gunicorn
+python-dotenv
+flask-cors
+flask-session
+flask-bcrypt
+flask-sqlalchemy
+redis
+torch
+pandas
+psycopg2
