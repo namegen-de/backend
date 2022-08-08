@@ -23,10 +23,11 @@ from models import (
   Name, 
   Like)
 
+# custom imports
 import sys
 sys.path.append('../model')
 
-from _utils import get_conversions, load_run
+from _utils import load_run
 from sample import sample
 
 # initialise flask app
@@ -40,9 +41,7 @@ server_session = Session(app) # server side authentification
 db.init_app(app) # sql alchemy postgres db handling
 
 # load model
-model, char2idx, country2idx, meta_data = load_run()
-idx2char = {i: c for c, i in char2idx.items()}
-a2i, i2a, a2c, c2a, c2i, i2c = get_conversions()
+model, meta_data = load_run()
 
 # init db
 with app.app_context():
@@ -204,10 +203,6 @@ def name():
 
   output = sample(
       model, 
-      char2idx, 
-      idx2char,
-      a2i,
-      i2a,
       countries=[countrycode],
       gender=gender,
       start_with=start_with,

@@ -6,3 +6,4 @@ flask-session
 flask-bcrypt
 flask-sqlalchemy
 redis
+torch
