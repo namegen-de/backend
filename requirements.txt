@@ -1,5 +1,4 @@
 --extra-index-url https://download.pytorch.org/whl/cpu/
-torch
 flask
 gunicorn
 python-dotenv
@@ -9,3 +8,5 @@ flask-bcrypt
 flask-sqlalchemy
 redis
 psycopg2
+numpy
+torch
