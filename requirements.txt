@@ -1,3 +1,5 @@
+--extra-index-url https://download.pytorch.org/whl/cpu/
+torch
 flask
 gunicorn
 python-dotenv
@@ -7,4 +9,3 @@ flask-bcrypt
 flask-sqlalchemy
 redis
 psycopg2
-https://download.pytorch.org/whl/torch-1.12.1-cp39-cp39-manylinux2014_aarch64.whl
