@@ -7,5 +7,4 @@ flask-session
 flask-bcrypt
 flask-sqlalchemy
 redis
-torch
 psycopg2
