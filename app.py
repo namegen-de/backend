@@ -23,12 +23,10 @@ from models import (
   Name, 
   Like)
 
-# custom imports
-import sys
-sys.path.append('../model')
-
-from _utils import load_run
-# from sample import sample
+# load rnn model
+from model import (
+    load_model, 
+    sample)
 
 # initialise flask app
 app = Flask(__name__)
@@ -41,7 +39,7 @@ server_session = Session(app) # server side authentification
 db.init_app(app) # sql alchemy postgres db handling
 
 # load model
-model, meta_data = load_run()
+model, meta_data = load_model()
 
 # init db
 with app.app_context():
@@ -194,7 +192,6 @@ def like_name():
 def meta():
   return jsonify(meta_data)
 
-"""
 @app.route("/name", methods=["POST"])
 def name():
   countrycode = request.json['countrycode']
@@ -210,7 +207,6 @@ def name():
       max_len=max_len)
     
   return jsonify(output)
-"""
 
 if __name__ == '__main__':
   app.run()
