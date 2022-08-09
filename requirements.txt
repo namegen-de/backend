@@ -1,3 +1,4 @@
+-f https://download.pytorch.org/whl/cpu
 flask
 gunicorn
 python-dotenv
@@ -6,4 +7,5 @@ flask-session
 flask-bcrypt
 flask-sqlalchemy
 redis
+torch
 psycopg2
