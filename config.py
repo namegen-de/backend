@@ -10,15 +10,23 @@ from dotenv import load_dotenv
 
 # load env
 load_dotenv()
-DB_URI = os.environ['DB_URI']
+
+ENV = os.environ['ENV']
+SECRET_KEY = os.environ['SECRET_KEY']
+DATABASE_URL = os.environ['DATABASE_URL']
 REDIS_URL = os.environ['REDISCLOUD_URL'] if 'REDISCLOUD_URL' in os.environ else os.environ['REDIS_LOCAL']
 
 class Config:
-  SECRET_KEY = os.environ["SECRET_KEY"]
+  # dev env
+  ENV = ENV
 
+  # db
   SQLALCHEMY_TRACK_MODIFICATIONS = False
-  SQLALCHEMY_ECHO = True
-  SQLALCHEMY_DATABASE_URI = DB_URI
+  SQLALCHEMY_ECHO = False
+  SQLALCHEMY_DATABASE_URI = DATABASE_URL
+
+  # session cookies
+  SECRET_KEY = SECRET_KEY
 
   SESSION_TYPE = 'redis'
   SESSION_PERMANENT = False

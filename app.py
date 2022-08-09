@@ -209,4 +209,7 @@ def name():
   return jsonify(output)
 
 if __name__ == '__main__':
-  app.run()
+  if Config.ENV == 'DEV':
+    app.run(debug=True)
+  else:
+    app.run()
