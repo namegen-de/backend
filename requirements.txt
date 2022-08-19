@@ -3,9 +3,9 @@ flask
 gunicorn
 python-dotenv
 flask-cors
-flask-session
 flask-bcrypt
 flask-sqlalchemy
+flask-session
 redis
 psycopg2
 numpy

@@ -5,12 +5,9 @@
 # imports
 import flask
 from flask import Flask
-from flask import (
-  abort,
-  session,
-  request,
-  jsonify
-)
+from flask import session, request, jsonify
+
+# flask addons
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 from flask_session import Session
@@ -32,11 +29,17 @@ from model import (
 app = Flask(__name__)
 app.config.from_object(Config)
 
-# addons
+# allow cross-origin
 cors = CORS(app, supports_credentials=True) # enable cross origin
+
+# password encryption
 bcrypt = Bcrypt(app) # encrypt password
-server_session = Session(app) # server side authentification
-db.init_app(app) # sql alchemy postgres db handling
+
+# cookies for secure server-side auth and user sessions
+user_session = Session(app)
+
+# sql alchemy postgres db handling
+db.init_app(app) 
 
 # load model
 model, meta_data = load_model()
@@ -47,11 +50,12 @@ with app.app_context():
 
 @app.route("/")
 def home():
-  return "Flask backend is running!"
+  return f"Flask backend is running! [ENV={Config.ENV}]"
+
 
 # user routes
 @app.route("/register", methods=["POST"])
-def register_user():
+def register():
   username = request.json["username"]
   email = request.json["email"]
   password = request.json["password"]
@@ -63,17 +67,15 @@ def register_user():
 
   # hash password and add new user
   hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-  new_user = User(username=username, email=email, password=hashed_password)
+  new_user = User(username, email, hashed_password)
   
   # add user to session
   db.session.add(new_user)
   db.session.commit()
 
   return jsonify({
-      "username": new_user.username,
-      "id": new_user.id,
-      "email": new_user.email,
-  })
+      "msg": "User successfully registered"
+  }), 200
 
 @app.route("/login", methods=["POST"])
 def login_user():
@@ -88,40 +90,42 @@ def login_user():
   if not bcrypt.check_password_hash(user.password, password):
     return jsonify({"error": "Wrong password."}), 401
 
+  # save session cookie
   session['user_id'] = user.id
 
   return jsonify({
-      "username": user.username,
-      "id": user.id,
-      "email": user.email
-  })
+      "msg": "Sucessfully logged in",
+      "user": {"username": user.username, "email": user.email}
+      }), 200
 
 @app.route("/logout", methods=["POST"])
 def logout_user():
-  if 'user_id' not in session:
-    return jsonify({"error": "No user logged in."}), 401
+  if not 'user_id' in session:
+    return jsonify({"msg": "No user logged in"}), 401
   session.pop('user_id')
+  return jsonify({"msg": "Successfully logged out"}), 200
 
-  return 200
-
-@app.route("/user_info", methods=["GET"])
+@app.route("/@me", methods=["GET"])
 def get_user_info():
-  if 'user_id' not in session:
-    return jsonify({"error": "Unauthorised"}), 409
+  user_id = session.get('user_id')
 
-  user_id = session['user_id']
+  if not user_id:
+    return jsonify({
+        "msg": "Unauthorised"
+        }), 401
+
   user = User.query.filter_by(id=user_id).first()
   
   return jsonify({
-      "username": user.username,
       "id": user.id,
+      "username": user.username,
       "email": user.email
-    })
+    }), 200
 
 @app.route("/likes", methods=["GET", "POST"])
 def like_name():
   if 'user_id' not in session:
-    return jsonify({"error": "Unauthorised"}), 409
+    return jsonify({"error": "Unauthorised"}), 401
 
   # user id from session
   uid = session['user_id']
@@ -143,7 +147,7 @@ def like_name():
       data = {"name": n.name, "countrycode": n.countrycode, "gender": n.gender}
       res[n.id].update(data)
 
-    return jsonify(res)
+    return jsonify(res), 200
     
   elif flask.request.method == 'POST':
     like = bool(request.json["like"])
@@ -169,7 +173,7 @@ def like_name():
 
       return jsonify({
         "msg": "Sucessfully added to liked"
-      })
+      }), 200
 
     # unlike if exists
     else:
@@ -183,7 +187,9 @@ def like_name():
       Like.query.filter_by(uid=uid, nid=nid).delete()
       db.session.commit()
 
-      return jsonify({"msg": "Successfully removed from likes"})
+      return jsonify({
+          "msg": "Successfully removed from likes"
+          }), 200
 
 # model routes
 
