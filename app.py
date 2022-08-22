@@ -48,13 +48,13 @@ model, meta_data = load_model()
 with app.app_context():
   db.create_all()
 
-@app.route("/")
+@app.route("/api")
 def home():
   return f"Flask backend is running! [ENV={Config.ENV}]"
 
 
 # user routes
-@app.route("/register", methods=["POST"])
+@app.route("/api/register", methods=["POST"])
 def register():
   username = request.json["username"]
   email = request.json["email"]
@@ -77,7 +77,7 @@ def register():
       "msg": "User successfully registered"
   }), 200
 
-@app.route("/login", methods=["POST"])
+@app.route("/api/login", methods=["POST"])
 def login_user():
   email = request.json["email"]
   password = request.json["password"]
@@ -98,14 +98,14 @@ def login_user():
       "user": {"username": user.username, "email": user.email}
       }), 200
 
-@app.route("/logout", methods=["POST"])
+@app.route("/api/logout", methods=["POST"])
 def logout_user():
   if not 'user_id' in session:
     return jsonify({"msg": "No user logged in"}), 401
   session.pop('user_id')
   return jsonify({"msg": "Successfully logged out"}), 200
 
-@app.route("/@me", methods=["GET"])
+@app.route("/api/@me", methods=["GET"])
 def get_user_info():
   user_id = session.get('user_id')
 
@@ -122,7 +122,7 @@ def get_user_info():
       "email": user.email
     }), 200
 
-@app.route("/likes", methods=["GET", "POST"])
+@app.route("/api/likes", methods=["GET", "POST"])
 def like_name():
   if 'user_id' not in session:
     return jsonify({"error": "Unauthorised"}), 401
@@ -194,11 +194,11 @@ def like_name():
 # model routes
 
 # get model meta data
-@app.route("/meta", methods=['GET'])
+@app.route("/api/meta", methods=['GET'])
 def meta():
   return jsonify(meta_data)
 
-@app.route("/name", methods=["POST"])
+@app.route("/api/name", methods=["POST"])
 def name():
   countrycode = request.json['countrycode']
   gender = request.json['gender']
